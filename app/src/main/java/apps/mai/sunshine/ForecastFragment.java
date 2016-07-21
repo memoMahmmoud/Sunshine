@@ -110,7 +110,7 @@ public class ForecastFragment extends Fragment {
         gregorianCalendar.set(Calendar.MINUTE, 0);
         gregorianCalendar.set(Calendar.SECOND, 0);
         gregorianCalendar.set(Calendar.MILLISECOND, 0);
-        //////
+
 
         JSONObject jsonObject=new JSONObject(jsonString);
         JSONArray jsonArrayForList= jsonObject.getJSONArray("list");
