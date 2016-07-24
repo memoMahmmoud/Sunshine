@@ -87,6 +87,7 @@ public class ForecastFragment extends Fragment {
         fetchWeatherTask.execute();
 
 
+
         forecastListView.setAdapter(forecastArrayAdapter);
         forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
