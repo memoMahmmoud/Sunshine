@@ -1,6 +1,7 @@
 package apps.mai.sunshine;
 
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -86,6 +88,15 @@ public class ForecastFragment extends Fragment {
 
 
         forecastListView.setAdapter(forecastArrayAdapter);
+        forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String Forecast=forecastArrayAdapter.getItem(i);
+                //Toast.makeText(getActivity(),Forecast,Toast.LENGTH_LONG).show();
+                Intent intent=new Intent(getActivity(),DetailActivity.class);
+                startActivity(intent);
+            }
+        });
 
         return view;
     }// on create method
@@ -202,10 +213,13 @@ public class ForecastFragment extends Fragment {
             //Toast.makeText(getActivity(),strings.toString(),Toast.LENGTH_LONG).show();
             Log.v(LOG_TAG, Arrays.toString(strings));
             forecastArrayAdapter.clear();
-            for (String s:
-                 strings) {
-                forecastArrayAdapter.add(s);
+            if(strings!=null){
+                for (String s:
+                        strings) {
+                    forecastArrayAdapter.add(s);
+                }
             }
+
 
         }
     }//finsh of async task
