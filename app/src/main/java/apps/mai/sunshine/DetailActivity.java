@@ -1,5 +1,6 @@
 package apps.mai.sunshine;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -9,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class DetailActivity extends AppCompatActivity {
@@ -20,6 +22,7 @@ public class DetailActivity extends AppCompatActivity {
         if (savedInstanceState==null){
             getSupportFragmentManager().beginTransaction().
                     add(R.id.container,new PlaceholderFragment()).commit();
+
         }
 
     }
@@ -43,11 +46,18 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private class PlaceholderFragment extends Fragment{
+        TextView textView;
 
         @Nullable
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             View rootView=inflater.inflate(R.layout.fragment_detail,container,false);
+            textView= (TextView) rootView.findViewById(R.id.forecast_string);
+            Intent intent=getIntent();
+            String forecast;
+            if ((forecast=intent.getStringExtra("forecast"))!=null){
+                textView.setText(forecast);
+            }
             return rootView;
         }
     }

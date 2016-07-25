@@ -2,8 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent">
     <TextView
+        android:id="@+id/forecast_string"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="maiiiiii"/>
+        android:text="@string/hello_blank_fragment"/>
 
 </RelativeLayout>
