@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -25,6 +24,7 @@ public class DetailActivity extends AppCompatActivity {
 
         }
 
+
     }
 
     @Override
@@ -37,7 +37,8 @@ public class DetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_settings:
-                Toast.makeText(this,"mai",Toast.LENGTH_LONG).show();
+                Intent intent=new Intent(this,SettingsActivity.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

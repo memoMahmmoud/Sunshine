@@ -63,9 +63,9 @@ public class ForecastFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.action_refresh:{
-                FetchWeatherTask fetchWeatherTask=new FetchWeatherTask();
-                fetchWeatherTask.execute();
+            case R.id.action_settings:{
+                Intent intent=new Intent(getContext(),SettingsActivity.class);
+                startActivity(intent);
                 return true;
             }
 

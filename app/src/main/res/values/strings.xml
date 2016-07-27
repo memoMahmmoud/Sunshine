@@ -1,9 +1,13 @@
 <resources>
     <string name="app_name">Sunshine</string>
 
-    <string name="action_settings" translatable="false">SETTINGS</string>
+    <string name="action_settings" translatable="false">Settings</string>
     <string name="action_refresh" translatable="false">Refresh</string>
+    <string name="pref_location_title">Location</string>
+    <string name="pref_location_key" translatable="false">location</string>
+    <string name="pref_location_default_value" translatable="false">94043</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_main">Sunshine</string>
+    <string name="title_activity_detail">Details</string>
+    <string name="title_activity_settings">Settings</string>
 </resources>
