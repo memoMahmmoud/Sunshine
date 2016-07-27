@@ -2,9 +2,11 @@ package apps.mai.sunshine;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -68,6 +70,14 @@ public class ForecastFragment extends Fragment {
                 startActivity(intent);
                 return true;
             }
+            case R.id.action_refresh:{
+                SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(getContext());
+                String locationValue=sharedPreferences.getString
+                        (getString(R.string.pref_location_key),getString(R.string.pref_location_default_value));
+                FetchWeatherTask fetchWeatherTask=new FetchWeatherTask();
+                fetchWeatherTask.execute(locationValue);
+                return true;
+            }
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -83,8 +93,12 @@ public class ForecastFragment extends Fragment {
         forecastArrayAdapter=new ArrayAdapter<String>(getActivity(),R.layout.list_item_forecast,
                 R.id.list_item_forecast_textview);
 
+        SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(getContext());
+        String locationValue=sharedPreferences.getString
+                (getString(R.string.pref_location_key),getString(R.string.pref_location_default_value));
+
         FetchWeatherTask fetchWeatherTask=new FetchWeatherTask();
-        fetchWeatherTask.execute();
+        fetchWeatherTask.execute(locationValue);
 
 
 
@@ -147,20 +161,21 @@ public class ForecastFragment extends Fragment {
 
     }
 
-    private class FetchWeatherTask extends AsyncTask<Void,Void,String[]>{
+    private class FetchWeatherTask extends AsyncTask<String,Void,String[]>{
         private final String LOG_TAG=FetchWeatherTask.class.getSimpleName();
 
 
         @Override
-        protected String[] doInBackground(Void... voids) {
+        protected String[] doInBackground(String... strings) {
 
             try {
                 final String FORECAST_URL_BASE="http://api.openweathermap.org/data/2.5/forecast/daily?";
-                final int numDays=7;
+                final int NUM_DAYS=7;
+                final String LOCATION=strings[0];
                 Uri builtUri=Uri.parse(FORECAST_URL_BASE).buildUpon()
-                        .appendQueryParameter("APPID","77f3ee73bd02d6e631bcab3258134519")
-                        .appendQueryParameter("q","Mansoura")
-                        .appendQueryParameter("cnt", String.valueOf(numDays))
+                        .appendQueryParameter("AppID",getResources().getString(R.string.app_id_weather_map_api))
+                        .appendQueryParameter("q",LOCATION)
+                        .appendQueryParameter("cnt", String.valueOf(NUM_DAYS))
                         .appendQueryParameter("units","metric")
                         .build();
 
@@ -181,7 +196,7 @@ public class ForecastFragment extends Fragment {
                 if (stringBuffer.length()!=0){
                     forecastJsonStr=stringBuffer.toString();
                     Log.v(LOG_TAG,"foresacast String :"+forecastJsonStr);
-                    return getWeatherDateFromJson(forecastJsonStr,numDays);
+                    return getWeatherDateFromJson(forecastJsonStr,NUM_DAYS);
 
                 }
                 else {
@@ -209,6 +224,8 @@ public class ForecastFragment extends Fragment {
             }//finally in try-catch
 
         }//finish do in background
+
+
 
         @Override
         protected void onPostExecute(String[] strings) {

@@ -10,4 +10,6 @@
     <string name="title_activity_main">Sunshine</string>
     <string name="title_activity_detail">Details</string>
     <string name="title_activity_settings">Settings</string>
+
+    <string name="app_id_weather_map_api">77f3ee73bd02d6e631bcab3258134519</string>
 </resources>
