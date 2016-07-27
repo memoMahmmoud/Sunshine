@@ -11,6 +11,11 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // add preferences that defined in xml folder
+        addPreferencesFromResource(R.xml.pref_general);
+        //for all preferences, we attach OnPreferenceChangeListener to update summery UI
+        // when the preference changes
+        bindPreferenceSummeryToValue(findPreference(getString(R.string.pref_location_key)));
 
     }
     private void bindPreferenceSummeryToValue(Preference preference){
