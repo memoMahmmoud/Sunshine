@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Sunshine</string>
 
-    <string name="action_settings">setting</string>
+    <string name="action_settings" translatable="false">SETTINGS</string>
     <string name="action_refresh" translatable="false">Refresh</string>
 
     <!-- TODO: Remove or change this placeholder text -->
