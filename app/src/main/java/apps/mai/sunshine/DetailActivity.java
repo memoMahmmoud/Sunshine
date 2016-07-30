@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 public class DetailActivity extends AppCompatActivity {
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +27,8 @@ public class DetailActivity extends AppCompatActivity {
         if (savedInstanceState==null){
             getSupportFragmentManager().beginTransaction().
                     add(R.id.container,new DetailFragment()).commit();
+            toolbar= (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
 
         }
 
@@ -58,9 +62,7 @@ public class DetailActivity extends AppCompatActivity {
         private String forecast;
         TextView textView;
 
-        @Override
-        public void onCreate(@Nullable Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
+        DetailFragment(){
             setHasOptionsMenu(true);
         }
 
@@ -85,9 +87,10 @@ public class DetailActivity extends AppCompatActivity {
             //retreive share menu item
             MenuItem shareItem=menu.findItem(R.id.menu_item_share);
             //getting shared action provider and attached to our intent
-            ShareActionProvider shareActionProvider= (ShareActionProvider)
-                    MenuItemCompat.getActionProvider(shareItem);
-            if (shareActionProvider!=null){
+            ShareActionProvider shareActionProvider=new ShareActionProvider(getContext());
+            shareActionProvider.setShareIntent(createShareForecastIntent());
+            MenuItemCompat.setActionProvider(shareItem,shareActionProvider);
+            if (shareActionProvider != null ) {
                 shareActionProvider.setShareIntent(createShareForecastIntent());
             }
             else {

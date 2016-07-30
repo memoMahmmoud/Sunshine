@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,6 +14,7 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
     private final static String LOG_TAG=MainActivity.class.getSimpleName();
+    Toolbar toolbar;
 
 
     @Override
@@ -20,9 +22,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container,new ForecastFragment(),"forecast fragment").commit();
+            toolbar= (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
         }
 
 
@@ -73,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
-        //avoid crashing
+        //avoid crashing if there is no app on the device to handle map implicit intent
         else {
             Log.v(LOG_TAG,"couldn't open map");
         }
