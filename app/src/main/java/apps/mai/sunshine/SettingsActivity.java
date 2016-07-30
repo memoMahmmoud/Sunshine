@@ -16,6 +16,7 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         //for all preferences, we attach OnPreferenceChangeListener to update summery UI
         // when the preference changes
         bindPreferenceSummeryToValue(findPreference(getString(R.string.pref_location_key)));
+        bindPreferenceSummeryToValue(findPreference(getString(R.string.pref_units_key)));
 
     }
     private void bindPreferenceSummeryToValue(Preference preference){
@@ -39,6 +40,7 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         }
         return true;
     }
+
 
 
 }

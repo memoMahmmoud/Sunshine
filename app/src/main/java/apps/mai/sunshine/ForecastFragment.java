@@ -51,10 +51,11 @@ public class ForecastFragment extends Fragment {
     // Will contain the raw JSON response as a string.
     String forecastJsonStr = null;
 
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+        //setHasOptionsMenu(true);
     }
 
     @Override
@@ -71,11 +72,7 @@ public class ForecastFragment extends Fragment {
                 return true;
             }
             case R.id.action_refresh:{
-                SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(getContext());
-                String locationValue=sharedPreferences.getString
-                        (getString(R.string.pref_location_key),getString(R.string.pref_location_default_value));
-                FetchWeatherTask fetchWeatherTask=new FetchWeatherTask();
-                fetchWeatherTask.execute(locationValue);
+                updateWeather();
                 return true;
             }
 
@@ -93,15 +90,6 @@ public class ForecastFragment extends Fragment {
         forecastArrayAdapter=new ArrayAdapter<String>(getActivity(),R.layout.list_item_forecast,
                 R.id.list_item_forecast_textview);
 
-        SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(getContext());
-        String locationValue=sharedPreferences.getString
-                (getString(R.string.pref_location_key),getString(R.string.pref_location_default_value));
-
-        FetchWeatherTask fetchWeatherTask=new FetchWeatherTask();
-        fetchWeatherTask.execute(locationValue);
-
-
-
         forecastListView.setAdapter(forecastArrayAdapter);
         forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -109,13 +97,19 @@ public class ForecastFragment extends Fragment {
                 String Forecast=forecastArrayAdapter.getItem(i);
                 //Toast.makeText(getActivity(),Forecast,Toast.LENGTH_LONG).show();
                 Intent intent=new Intent(getActivity(),DetailActivity.class);
-                intent.putExtra("forecast",Forecast);
+                intent.putExtra(Intent.EXTRA_TEXT,Forecast);
                 startActivity(intent);
             }
         });
 
         return view;
     }// on create method
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
 
     //To make readable date as "Thu Jul 21"
     private String getReadableDate(Long dateInLong){
@@ -125,8 +119,20 @@ public class ForecastFragment extends Fragment {
 
     //To make read high and low temperatures as "18/16"
     private String makeReadHighTemperature(double high,double low){
-        long highTemp=Math.round(high);
-        long lowTemp=Math.round(low);
+        long highTemp,lowTemp;
+        SharedPreferences sharedPreferences=PreferenceManager.getDefaultSharedPreferences(getContext());
+        String units=sharedPreferences.getString(getString(R.string.pref_units_key),
+                getString(R.string.pref_units_default_value));
+        //user select imperial units
+        if (!units.contains(getString(R.string.pref_units_default_value))){
+            high=high*1.8+32;
+            low=low*1.8+32;
+        }//user select imperial units
+
+        highTemp=Math.round(high);
+        lowTemp=Math.round(low);
+
+
         return highTemp+"/"+lowTemp;
     }
     private String[] getWeatherDateFromJson(String jsonString, int numDays) throws JSONException {
@@ -159,6 +165,14 @@ public class ForecastFragment extends Fragment {
         }
         return forecast_array;
 
+    }
+    private void updateWeather(){
+        SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(getContext());
+        String locationValue=sharedPreferences.getString
+                (getString(R.string.pref_location_key),getString(R.string.pref_location_default_value));
+
+        FetchWeatherTask fetchWeatherTask=new FetchWeatherTask();
+        fetchWeatherTask.execute(locationValue);
     }
 
     private class FetchWeatherTask extends AsyncTask<String,Void,String[]>{
