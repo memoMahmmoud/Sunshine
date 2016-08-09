@@ -56,13 +56,13 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    private static class DetailFragment extends Fragment{
+    public static class DetailFragment extends Fragment{
         private static final String LOG_TAG=DetailFragment.class.getSimpleName();
         private static final String FORECAST_SHARE_HASHTAG="#Sunshine App";
         private String forecast;
         TextView textView;
 
-        DetailFragment(){
+        public DetailFragment(){
             setHasOptionsMenu(true);
         }
 
