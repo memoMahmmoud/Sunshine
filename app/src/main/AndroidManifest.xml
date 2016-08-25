@@ -32,6 +32,9 @@
             >
 
         </activity>
+        <provider
+            android:authorities="apps.mai.sunshine"
+            android:name=".data.WeatherProvider"/>
     </application>
 
 </manifest>

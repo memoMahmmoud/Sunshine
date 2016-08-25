@@ -11,7 +11,7 @@ import apps.mai.sunshine.data.WeatherContract.LocationEntry;
  * Created by Mai_ on 06-Aug-16.
  */
 public class WeatherDBHelper extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 7;
     public static final String DATABASE_NAME = "weather.db";
 
     public WeatherDBHelper(Context context) {
