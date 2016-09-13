@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,7 +21,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -41,10 +39,9 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
     BufferedReader reader;
     Context context;
     String forecastJsonStr;
-    ArrayAdapter<String> forecastArrayAdapter;
-    FetchWeatherTask(Context context,ArrayAdapter<String> forecastArrayAdapter){
+
+    FetchWeatherTask(Context context){
         this.context = context;
-        this.forecastArrayAdapter = forecastArrayAdapter;
     }
 
     @Override
@@ -54,11 +51,14 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             final String FORECAST_URL_BASE = "http://api.openweathermap.org/data/2.5/forecast/daily?";
             final int NUM_DAYS = 14;
             final String LOCATION = strings[0];
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            final String UNITS = prefs.getString(context.getString(R.string.pref_units_key),
+                    context.getString(R.string.pref_units_default_value));
             Uri builtUri = Uri.parse(FORECAST_URL_BASE).buildUpon()
                     .appendQueryParameter("AppID", context.getString(R.string.app_id_weather_map_api))
                     .appendQueryParameter("q", LOCATION)
                     .appendQueryParameter("cnt", String.valueOf(NUM_DAYS))
-                    .appendQueryParameter("units", "metric")
+                    .appendQueryParameter("units", UNITS)
                     .build();
 
             URL urlForWhetherMap = new URL(builtUri.toString());
@@ -187,7 +187,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                 cVVector.add(cv);
             } while (cur.moveToNext());
         }
-
+        cur.close();
         Log.e("mai", "FetchWeatherTask Complete. " + cVVector.size() + " Inserted");
         String[] resultStrs = convertContentValuesToUXFormat(cVVector);
         return resultStrs;
@@ -276,18 +276,5 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
     }
 
 
-    @Override
-    protected void onPostExecute(String[] strings) {
-        //Toast.makeText(getActivity(),strings.toString(),Toast.LENGTH_LONG).show();
-        Log.v(LOG_TAG, Arrays.toString(strings));
-        forecastArrayAdapter.clear();
-        if (strings != null) {
-            for (String s :
-                    strings) {
-                forecastArrayAdapter.add(s);
-            }
-        }
 
-
-    }
 }//finsh of async task

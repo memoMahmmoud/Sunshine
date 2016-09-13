@@ -85,7 +85,7 @@ public class WeatherProvider extends ContentProvider{
                 }
                 else{
                     selection = LocationEntry.TABLE_NAME + "." + LocationEntry.COLUMN_LOCATION_SETTING + " = ? AND "+
-                            WeatherEntry.TABLE_NAME+"."+WeatherEntry.COLUMN_DATE+" = ? ";
+                            WeatherEntry.TABLE_NAME+"."+WeatherEntry.COLUMN_DATE+" >= ? ";
                     arg_selections = new String[]{location,Long.toString(start_date)};
                 }
                 cursor = mSQLiteQueryBuilder.query(weatherDBHelper.getReadableDatabase(), strings,
@@ -96,10 +96,11 @@ public class WeatherProvider extends ContentProvider{
                 long date = WeatherEntry.getStartDateFromUri(uri);
                 String location = WeatherEntry.getLocationSettingFromUri(uri);
                 cursor = mSQLiteQueryBuilder.query(weatherDBHelper.getReadableDatabase(),strings,
-                        (LocationEntry.TABLE_NAME + "." + LocationEntry.COLUMN_LOCATION_SETTING + " = ? AND "+
-                        WeatherEntry.TABLE_NAME+"."+WeatherEntry.COLUMN_DATE+" = ? "),
+                        (LocationEntry.TABLE_NAME + "." + LocationEntry.COLUMN_LOCATION_SETTING + " =? AND "+
+                        WeatherEntry.TABLE_NAME+"."+WeatherEntry.COLUMN_DATE+" = ?"),
                         new String[]{location,Long.toString(date)},null,null,s1);
                 break;
+
             }
             default:
                 throw new UnsupportedOperationException("Unknown uri: "+uri);

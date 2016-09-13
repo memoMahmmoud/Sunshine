@@ -15,19 +15,21 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity {
     private final static String LOG_TAG=MainActivity.class.getSimpleName();
     Toolbar toolbar;
-
+    private final String FORECAST_FRAGMENT_TAG = "FFTAG";
+    private String mLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mLocation = Utility.getPreferredLocation(this);
 
-
+        toolbar= (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container,new ForecastFragment(),"forecast fragment").commit();
-            toolbar= (Toolbar) findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
+                    .add(R.id.container,new ForecastFragment(),FORECAST_FRAGMENT_TAG).commit();
+
         }
 
 
@@ -61,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+
     private void openPreferredMapLocation(){
 
         //get location stored in shared preference
@@ -83,5 +87,18 @@ public class MainActivity extends AppCompatActivity {
             Log.v(LOG_TAG,"couldn't open map");
         }
 
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String location = Utility.getPreferredLocation( this );
+        //update the location in our second pane using the fragment manager
+        if (location != null && !location.equals(mLocation)) {
+            ForecastFragment forecastFragment = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECAST_FRAGMENT_TAG);
+            if ( null != forecastFragment ) {
+                forecastFragment.onLocationChanged();
+            }
+            mLocation = location;
+        }
     }
 }
