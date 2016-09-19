@@ -16,18 +16,28 @@ import android.widget.TextView;
 public class ForecastAdapter extends CursorAdapter {
     private static final int VIEW_TYPE_TODAY = 0;
     private static final int VIEW_TYPE_FUTURE_DAY = 1;
+    boolean mUseTodayLayout;
+
     public ForecastAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
+
+    }
+    public void setUseTodayLayout(boolean useTodayLayout){
+        mUseTodayLayout = useTodayLayout;
+        Log.e("mai","k"+mUseTodayLayout);
     }
     // to make adapter show 2 different layouts, one for today and the second for others
     @Override
     public int getViewTypeCount() {
-        return 2;
+            return 2;
+
+
     }
 
     @Override
     public int getItemViewType(int position) {
-        return (position == 0) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY ;
+
+        return (mUseTodayLayout && position==0) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY ;
     }
 
     @Override
@@ -36,9 +46,13 @@ public class ForecastAdapter extends CursorAdapter {
         int layoutId = -1;
         if (view_type == VIEW_TYPE_TODAY){
             layoutId = R.layout.list_item_forecast_today;
+
+
         }
         else if(view_type == VIEW_TYPE_FUTURE_DAY){
             layoutId = R.layout.list_item_forecast;
+
+
         }
         View view= LayoutInflater.from(context).inflate(layoutId,parent,false);
         ViewHolder viewHolder = new ViewHolder(view);
@@ -52,19 +66,22 @@ public class ForecastAdapter extends CursorAdapter {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
         // Read weather icon ID from cursor
         int weatherId = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
-        Log.e("mai",""+weatherId);
-        if (cursor.getPosition() ==0){
-            int imageResource = Utility.getArtResourceForWeatherCondition(weatherId);
-            if (imageResource!=-1){
-                viewHolder.iconView.setImageResource(imageResource);
+        int view_type = getItemViewType(cursor.getPosition());
+        switch (view_type){
+            case VIEW_TYPE_TODAY:
+            {
+                int imageResource = Utility.getArtResourceForWeatherCondition(weatherId);
+                if (imageResource!=-1){
+                    viewHolder.iconView.setImageResource(imageResource);
+                }
+                break;
             }
-        }
-        else
-        {
-            int imageResource = Utility.getIconResourceForWeatherCondition(weatherId);
-            if (imageResource!=-1){
-                viewHolder.iconView.setImageResource(imageResource);
-                ///////////
+            case VIEW_TYPE_FUTURE_DAY:{
+                int imageResource = Utility.getIconResourceForWeatherCondition(weatherId);
+                if (imageResource!=-1){
+                    viewHolder.iconView.setImageResource(imageResource);
+
+                }
             }
         }
 
@@ -74,6 +91,8 @@ public class ForecastAdapter extends CursorAdapter {
         // Read weather forecast from cursor
         String description = cursor.getString(ForecastFragment.COL_WEATHER_DESC);
         viewHolder.descriptionView.setText(description);
+
+        viewHolder.iconView.setContentDescription(description);
 
         // Read user preference for metric or imperial temperature units
         boolean isMetric = Utility.isMetric(context);

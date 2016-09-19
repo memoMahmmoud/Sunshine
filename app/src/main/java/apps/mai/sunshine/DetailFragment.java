@@ -69,6 +69,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mWindView;
     private TextView mPressureView;
 
+    static final String DETAIL_URI = "URI";
+    private Uri mUri;
+
     public DetailFragment(){
         setHasOptionsMenu(true);
     }
@@ -76,6 +79,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
+        }
         View rootView=inflater.inflate(R.layout.fragment_detail,container,false);
         mIconView = (ImageView) rootView.findViewById(R.id.detail_icon);
         mDateView = (TextView) rootView.findViewById(R.id.detail_date_textview);
@@ -90,6 +97,17 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         return rootView;
     }
+    void onLocationChanged( String newLocation ) {
+        // replace the uri, since the location has changed
+        Uri uri = mUri;
+        if (null != uri) {
+            long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
+            Uri updatedUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
+            mUri = updatedUri;
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+        }
+    }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -100,12 +118,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         //getting shared action provider and attached to our intent
         shareActionProvider= (ShareActionProvider)
                 MenuItemCompat.getActionProvider(shareItem);
-        if (forecast !=null){
+
             shareActionProvider.setShareIntent(createShareForecastIntent());
-        }
-        else {
+
             Log.v(LOG_TAG,"Share Action Provider is null");
-        }
+
 
     }
 
@@ -120,11 +137,13 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Intent intent=getActivity().getIntent();
-        if (intent==null){
-            return null;
+        if (null != mUri){
+            return new CursorLoader(getActivity(),mUri,FORECAST_COLUMNS,null,null,null);
         }
-        Uri forecastUri=intent.getData();
-        return new CursorLoader(getActivity(),forecastUri,FORECAST_COLUMNS,null,null,null);
+
+
+        return null;
+
     }
 
     @Override
@@ -154,6 +173,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
             int icon_id = data.getInt(COL_WEATHER_ID);
             mIconView.setImageResource(Utility.getArtResourceForWeatherCondition(icon_id));
+
+            mIconView.setContentDescription(description);
 
             float humidity = data.getFloat(COL_HUMIDITY);
             mHumidityView.setText(getActivity().getString(R.string.format_humidity, humidity));

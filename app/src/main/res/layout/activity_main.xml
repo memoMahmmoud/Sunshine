@@ -10,10 +10,12 @@
 
     <include
         android:id="@+id/toolbar"
-        layout="@layout/toolbar"/>
-    <FrameLayout
+        layout="@layout/toolbar"
+        />
+    <fragment
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:id="@+id/container"></FrameLayout>
+        android:id="@+id/forecast_fragment"
+        android:name="apps.mai.sunshine.ForecastFragment"></fragment>
 </LinearLayout>

@@ -12,11 +12,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ForecastFragment.Callback{
     private final static String LOG_TAG=MainActivity.class.getSimpleName();
     Toolbar toolbar;
     private final String FORECAST_FRAGMENT_TAG = "FFTAG";
     private String mLocation;
+    private boolean mTwoPane;
+    private static final String DETAIL_FRAGMENT_TAG = "deail_fragment_tag";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,12 +27,30 @@ public class MainActivity extends AppCompatActivity {
         mLocation = Utility.getPreferredLocation(this);
 
         toolbar= (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container,new ForecastFragment(),FORECAST_FRAGMENT_TAG).commit();
 
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setIcon(R.drawable.ic_logo);
+        getSupportActionBar().setTitle("");
+
+        if (findViewById(R.id.forecast_detail)!= null){
+            // there were 2 pane
+            if (savedInstanceState == null){
+                getSupportFragmentManager().beginTransaction().replace(R.id.forecast_detail,
+                        new DetailFragment(),
+                        DETAIL_FRAGMENT_TAG).commit();
+            }
+
+            mTwoPane = true;
         }
+        else {
+            mTwoPane = false;
+            getSupportActionBar().setElevation(0);
+        }
+        ForecastFragment forecastFragment = (ForecastFragment)getSupportFragmentManager().
+                findFragmentById(R.id.forecast_fragment);
+        forecastFragment.setUseTodayLayout(!mTwoPane);
 
 
     }
@@ -65,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     private void openPreferredMapLocation(){
 
         //get location stored in shared preference
@@ -92,13 +113,38 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         String location = Utility.getPreferredLocation( this );
+        //Log.e("mai","Main Activity"+location);
         //update the location in our second pane using the fragment manager
         if (location != null && !location.equals(mLocation)) {
-            ForecastFragment forecastFragment = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECAST_FRAGMENT_TAG);
-            if ( null != forecastFragment ) {
+            ForecastFragment forecastFragment = (ForecastFragment)getSupportFragmentManager().
+                    findFragmentById(R.id.forecast_fragment);
+
+            if ( forecastFragment != null ) {
                 forecastFragment.onLocationChanged();
             }
+            DetailFragment df = (DetailFragment)getSupportFragmentManager().findFragmentByTag(DETAIL_FRAGMENT_TAG);
+            if ( null != df ) {
+                df.onLocationChanged(location);
+            }
             mLocation = location;
+        }
+    }
+
+    @Override
+    public void onItemSelected(Uri dateUri) {
+        if (mTwoPane) {
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            Bundle args = new Bundle();
+            args.putParcelable(DetailFragment.DETAIL_URI, dateUri);
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(args);
+            getSupportFragmentManager().beginTransaction().replace
+                    (R.id.forecast_detail, fragment, DETAIL_FRAGMENT_TAG).commit();
+            } else {
+            Intent intent = new Intent(this, DetailActivity.class).setData(dateUri);
+            startActivity(intent);
         }
     }
 }

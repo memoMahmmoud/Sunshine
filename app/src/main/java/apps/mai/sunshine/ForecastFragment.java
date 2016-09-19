@@ -12,7 +12,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,16 +21,20 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import apps.mai.sunshine.data.WeatherContract;
 import apps.mai.sunshine.data.WeatherContract.LocationEntry;
 import apps.mai.sunshine.data.WeatherContract.WeatherEntry;
+import apps.mai.sunshine.sync.SunshineSyncAdapter;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
     ListView forecastListView;
-    CursorAdapter forecastCursorAdapter;
+    ForecastAdapter forecastCursorAdapter;
     public static final int FORECAST_LOADER = 0;
+    int mPosition;
+    public static final String SELECTED_KEY_POSITION = "position";
     private static final String[] FORECAST_COLUMNS = {
             // In this case the id needs to be fully qualified with a table name, since
             // the content provider joins the location & weather tables in the background
@@ -61,10 +64,15 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     static final int COL_WEATHER_CONDITION_ID = 6;
     static final int COL_COORD_LAT = 7;
     static final int COL_COORD_LONG = 8;
+    boolean mUseTodayLayout;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setHasOptionsMenu(true);
+        setHasOptionsMenu(true);
+    }
+    public interface Callback {
+       public void onItemSelected(Uri dateUri);
     }
 
     @Override
@@ -94,6 +102,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
+
         forecastListView = (ListView) view.findViewById(R.id.listview_forecast);
 
 
@@ -112,21 +121,31 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(i);
                 String location_setting = Utility.getPreferredLocation(getContext());
                 if (cursor!=null){
-                    Intent intent = new Intent(getActivity(),DetailActivity.class).
-                            setData(WeatherEntry.buildWeatherLocationWithStartDate(location_setting,
-                                    cursor.getLong(COL_WEATHER_DATE)));
-                    startActivity(intent);
+                    ((Callback) getActivity()).onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
+                            location_setting, cursor.getLong(COL_WEATHER_DATE)
+                    ));
+
                 }
+                mPosition = i;
             }
         });
+        if (savedInstanceState !=null && savedInstanceState.containsKey(SELECTED_KEY_POSITION)){
+            mPosition = savedInstanceState.getInt(SELECTED_KEY_POSITION);
 
+        }
+        forecastCursorAdapter.setUseTodayLayout(mUseTodayLayout);
         return view;
     }// on create method
 
+
+
     @Override
-    public void onStart() {
-        updateWeather();
-        super.onStart();
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mPosition != ListView.INVALID_POSITION){
+            outState.putInt(SELECTED_KEY_POSITION,mPosition);
+        }
+
     }
 
     @Override
@@ -142,13 +161,30 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
 
 
+
+
     private void updateWeather() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         String locationValue = sharedPreferences.getString
                 (getString(R.string.pref_location_key), getString(R.string.pref_location_default_value));
 
-        FetchWeatherTask fetchWeatherTask = new FetchWeatherTask(getContext());
-        fetchWeatherTask.execute(locationValue);
+        //FetchWeatherTask fetchWeatherTask = new FetchWeatherTask(getContext());
+        //fetchWeatherTask.execute(locationValue);
+
+        //Intent intent = new Intent(getActivity(), SunshineService.class);
+        //intent.putExtra(SunshineService.LOCATION_EXTRA,locationValue);
+        //getActivity().startService(intent);
+        /*Intent alarmIntent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
+        alarmIntent.putExtra(SunshineService.LOCATION_EXTRA,locationValue);
+
+        AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService
+                (Context.ALARM_SERVICE);
+        //Wrap in a pending intent which only fires once.
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(),0,alarmIntent,
+                PendingIntent.FLAG_ONE_SHOT);
+        //Set the AlarmManager to wake up the system even if the phone is sleep
+        alarmManager.set(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+5000,pendingIntent);*/
+        SunshineSyncAdapter.SyncImmediately(getActivity());
     }
 
 
@@ -164,11 +200,24 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         forecastCursorAdapter.swapCursor(data);
+        if (mPosition != ListView.INVALID_POSITION){
+            forecastListView.smoothScrollToPosition(mPosition);
+
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+
         forecastCursorAdapter.swapCursor(null);
+
+    }
+    public void setUseTodayLayout(boolean useTodayLayout){
+
+        mUseTodayLayout = useTodayLayout;
+        if (forecastCursorAdapter!=null){
+            forecastCursorAdapter.setUseTodayLayout(mUseTodayLayout);
+        }
     }
 }
 

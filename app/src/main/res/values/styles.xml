@@ -2,11 +2,12 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/sunshine_blue</item>
+        <item name="colorPrimaryDark">@color/sunshine_dark_blue</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="actionModeShareDrawable">@drawable/ic_share_white_24dp</item>
     </style>
+    <!--<style name="ForecastTheme" parent="AppTheme"/>-->
+    
 
 </resources>
