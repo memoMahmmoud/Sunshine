@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +31,7 @@ import apps.mai.sunshine.sync.SunshineSyncAdapter;
  * A simple {@link Fragment} subclass.
  */
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+    private static final String LOG_TAG = ForecastFragment.class.getSimpleName();
     ListView forecastListView;
     ForecastAdapter forecastCursorAdapter;
     public static final int FORECAST_LOADER = 0;
@@ -91,6 +93,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             case R.id.action_refresh: {
                 updateWeather();
                 return true;
+            }
+            case R.id.action_map: {
+                openPreferredMapLocation();
             }
 
             default:
@@ -185,6 +190,34 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         //Set the AlarmManager to wake up the system even if the phone is sleep
         alarmManager.set(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+5000,pendingIntent);*/
         SunshineSyncAdapter.SyncImmediately(getActivity());
+    }
+    private void openPreferredMapLocation(){
+
+        if(forecastCursorAdapter != null){
+            Cursor cursor = forecastCursorAdapter.getCursor();
+            if (cursor != null){
+                cursor.moveToPosition(0);
+                String lat = cursor.getString(COL_COORD_LAT);
+                String lon = cursor.getString(COL_COORD_LONG);
+                Uri geoLocation = Uri.parse("geo:"+lat+","+lon);
+
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(geoLocation);
+
+                //we check first if there is one app or more to handle map intent to avoid crashing
+                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    startActivity(intent);
+                }
+                //avoid crashing if there is no app on the device to handle map implicit intent
+                else {
+                    Log.v(LOG_TAG,"couldn't open map");
+                }
+
+
+            }
+        }
+
+
     }
 
 

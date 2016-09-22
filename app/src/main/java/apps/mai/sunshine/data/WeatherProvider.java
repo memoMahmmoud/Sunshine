@@ -170,6 +170,7 @@ public class WeatherProvider extends ContentProvider{
     public int delete(Uri uri, String s, String[] strings) {
         final SQLiteDatabase db = weatherDBHelper.getWritableDatabase();
         int rowsDeleted;
+        if (null == s) s="1";
         switch (uriMatcher.match(uri)){
             case LOCATION:{
                 rowsDeleted = db.delete(LocationEntry.TABLE_NAME,s,strings);

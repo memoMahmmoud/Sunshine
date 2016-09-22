@@ -8,9 +8,8 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+
+import apps.mai.sunshine.sync.SunshineSyncAdapter;
 
 public class MainActivity extends AppCompatActivity implements ForecastFragment.Callback{
     private final static String LOG_TAG=MainActivity.class.getSimpleName();
@@ -46,16 +45,18 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
         }
         else {
             mTwoPane = false;
-            getSupportActionBar().setElevation(0);
+            //getSupportActionBar().setElevation(0);
         }
         ForecastFragment forecastFragment = (ForecastFragment)getSupportFragmentManager().
                 findFragmentById(R.id.forecast_fragment);
         forecastFragment.setUseTodayLayout(!mTwoPane);
 
+        SunshineSyncAdapter.initializeSyncAdapter(this);
+
 
     }
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater=getMenuInflater();
         menuInflater.inflate(R.menu.main,menu);
@@ -82,33 +83,11 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
+    }*/
 
 
 
-    private void openPreferredMapLocation(){
 
-        //get location stored in shared preference
-        SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
-        String location=sharedPreferences.getString(getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default_value));
-
-        // build implict intent for view the map
-        Intent intent=new Intent(Intent.ACTION_VIEW);
-        Uri geoLocation=Uri.parse("geo:0,0?").buildUpon()
-                .appendQueryParameter("q",location)
-                .build();
-        intent.setData(geoLocation);
-        //we check first if there is one app or more to handle map intent to avoid crashing
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
-        }
-        //avoid crashing if there is no app on the device to handle map implicit intent
-        else {
-            Log.v(LOG_TAG,"couldn't open map");
-        }
-
-    }
     @Override
     protected void onResume() {
         super.onResume();
